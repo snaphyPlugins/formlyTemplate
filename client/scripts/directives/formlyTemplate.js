@@ -81,6 +81,46 @@ angular.module($snaphy.getModuleName())
                 }
             }); //END OF Selectize function..
 
+            //adding items programatically..
+            function addValue(item){
+                var select = $(iElm).selectize();
+                var selectize = select[0].selectize;
+                var obj = {};
+                obj.id = item.id;
+                obj[scope.searchProperty] = item[scope.searchProperty];
+
+                selectize.addOption(obj);
+                selectize.addItem(item.id);
+            }
+
+
+            scope.$watch('value', function(){
+                if(!$.isEmptyObject(scope.value)){
+                    //check if the selectize has that value in options if not then load it..
+                    var select = $(iElm).selectize();
+                    var selectize = select[0].selectize;
+                    //Add this value to the scope.
+                    var val = $.map(selectize.items, function(value) {
+                        return selectize.options[value];
+                    });
+                    if(val.length === 0){
+                        //Now check if the model has value or not..
+                        if(!$.isEmptyObject(scope.value)){
+                            //Now add data
+                            addValue(scope.value);
+                        }
+                    }
+                }
+                else{
+                    $timeout(function(){
+                        var select = $(iElm).selectize();
+                        var selectize = select[0].selectize;
+                        selectize.clear();
+                    }, 0);
+                }
+
+            });
+
         } //LInk  function
     }; //END Return
 }])
@@ -148,8 +188,7 @@ angular.module($snaphy.getModuleName())
                     });
                 }, //load function..
 
-                onItemAdd: function(value, $item){
-                    console.log($item[0]);
+                onItemAdd: function(value){
                     var select = $(iElm).selectize();
                     var selectize = select[0].selectize;
                     //Add this value to the scope.
@@ -178,6 +217,54 @@ angular.module($snaphy.getModuleName())
                     }, 0);
                 }
             }); //END OF Selectize function..
+
+
+            //adding items programatically..
+            function addValue(item){
+                var select = $(iElm).selectize();
+                var selectize = select[0].selectize;
+                var obj = {};
+                obj.id = item.id;
+                obj[scope.searchProperty] = item[scope.searchProperty];
+
+                selectize.addOption(obj);
+                selectize.addItem(item.id);
+            }
+
+
+            scope.$watch('value', function(){
+                var select = $(iElm).selectize();
+                var selectize = select[0].selectize;
+                //Add this value to the scope.
+                var val = $.map(selectize.items, function(value) {
+                    return selectize.options[value];
+                });
+                if(scope.value !== undefined){
+                    if(scope.value.length && val.length === 0){
+                        scope.value.forEach(function(columnValue){
+                            //Now check if the model has value or not..
+                            if(!$.isEmptyObject(columnValue)){
+                                //Now add data
+                                addValue(columnValue);
+                            }
+                        });
+                    }else{
+                        $timeout(function(){
+                            var select = $(iElm).selectize();
+                            var selectize = select[0].selectize;
+                            selectize.clear();
+                        }, 0);
+                    }
+                }
+                else{
+                    $timeout(function(){
+                        var select = $(iElm).selectize();
+                        var selectize = select[0].selectize;
+                        selectize.clear();
+                    }, 0);
+                }
+
+            });
 
         } //LInk  function
     }; //END Return
