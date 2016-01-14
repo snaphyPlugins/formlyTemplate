@@ -86,6 +86,7 @@ angular.module($snaphy.getModuleName())
                 var select = $(iElm).selectize();
                 var selectize = select[0].selectize;
                 var obj = {};
+                obj = item;
                 obj.id = item.id;
                 obj[scope.searchProperty] = item[scope.searchProperty];
 
@@ -141,7 +142,7 @@ angular.module($snaphy.getModuleName())
             //Contains the value of the data.. that needs to be updated.
             "value"          : "=value"
         },
-        template: '<select  class="selectize"  ng-transclude></select>' ,
+        template: '<select class="selectize"  ng-transclude></select>' ,
         link: function(scope, iElm, iAttrs, controller) {
             if(!scope.modelName || !scope.searchProperty){
                 console.error("Error >>> searchProperty and modelName attributes are required");
@@ -201,9 +202,18 @@ angular.module($snaphy.getModuleName())
                     }
                     var indexFound;
                     for(var i=0; i < val.length; i++){
-                        if( parseInt(val[i].id) === parseInt(value)){
+                        if( val[i].id.toString().trim() === value.toString().trim()){
                             indexFound = i;
                             break;
+                        }
+                    }
+
+                    //only add if the value is not present in the model data..
+                    for(var j=0; j<scope.value.length; j++){
+                        var element = scope.value[j];
+                        if(element.id.toString() ===  value){
+                            //dont add value just return..
+                            return false;
                         }
                     }
 
@@ -220,11 +230,38 @@ angular.module($snaphy.getModuleName())
 
 
 
+            var select = $(iElm).selectize();
+            var selectize = select[0].selectize;
+            selectize.on("item_remove", function(value, $item){
+                console.log(value);
+                //Remove the data from the model too..
+                var index = null;
+                for(var i=0; i<scope.value.length; i++){
+                    var element = scope.value[i];
+                    if(element.id.toString() === value.toString()){
+                        index = i;
+                        break;
+                    }
+                }
+
+                if(index !== null){
+                    $timeout(function(){
+                        //remove the element too...
+                        scope.value.splice(index, 1);
+                    }, 0);
+                }
+
+            });
+
+
+
+
             //adding items programatically..
             function addValue(item){
                 var select = $(iElm).selectize();
                 var selectize = select[0].selectize;
                 var obj = {};
+                obj = item;
                 obj.id = item.id;
                 obj[scope.searchProperty] = item[scope.searchProperty];
 
@@ -263,6 +300,27 @@ angular.module($snaphy.getModuleName())
                                 var selectize = select[0].selectize;
                                 selectize.clear();
                             }, 0);
+                        }else{
+                            if(scope.value.length !== val.length){
+
+                                val.forEach(function(element){
+                                    var matchFound = false;
+                                    for(var i=0; i<scope.value.length; i++){
+                                        var selectedValue = scope.value[i];
+                                        if( element[scope.searchProperty].toString().trim() === selectedValue[scope.searchProperty].toString().trim()){
+                                            matchFound = true;
+                                            break;
+                                        }
+                                    }
+                                    if(!matchFound){
+                                        $timeout(function(){
+                                            var select = $(iElm).selectize();
+                                            var selectize = select[0].selectize;
+                                            selectize.removeItem(element.id);
+                                        }, 0);
+                                    }
+                                });
+                            }
                         }
                     }
                 }
@@ -274,7 +332,8 @@ angular.module($snaphy.getModuleName())
                     }, 0);
                 }
 
-            });
+            });//watch
+
 
         } //LInk  function
     }; //END Return
