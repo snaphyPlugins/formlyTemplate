@@ -257,10 +257,68 @@ angular.module($snaphy.getModuleName())
         }
     });
 
+
+    /*
+    For adding object type values..
+     */
     formlyConfig.setType({
         name: 'objectValue',
         templateUrl: '/formlyTemplate/views/objectTemplate.html',
-        controller: ['$scope', function($scope) {}]
+        controller: ['$scope', function($scope) {
+
+
+        }],
+        link: function(scope, element) {
+            if(scope.model[scope.options.key] === undefined){
+                scope.model[scope.options.key] = {};
+            }
+
+            var updateData = function(modelDataObj, tempModelObj, property){
+                $timeout(function(){
+                    tempModelObj[property] = modelDataObj[property];
+                });
+            };
+
+            scope.objModel = scope.model[scope.options.key] ;
+            scope.$watch('model[options.key]', function(value) {
+                if($.isEmptyObject( scope.model[scope.options.key] )){
+                    scope.objModel = {};
+                }
+
+                for(var modelData in scope.model[scope.options.key]){
+                    if(scope.model[scope.options.key].hasOwnProperty(modelData)){
+                        if(scope.objModel[modelData] !== scope.model[scope.options.key][modelData]){
+                            updateData(scope.model[scope.options.key], scope.objModel, modelData);
+                        }
+                    }
+                }
+            }, true);
+
+
+
+
+            scope.$watch('objModel', function(value) {
+                if(scope.model[scope.options.key] === undefined){
+                    scope.model[scope.options.key] = {};
+                }
+                if(scope.objModel === undefined){
+                    scope.objModel = scope.model[scope.options.key];
+                }
+                for(var modelData in scope.objModel){
+                    if(scope.objModel.hasOwnProperty(modelData)){
+                        if(scope.objModel[modelData] !== scope.model[scope.options.key][modelData]){
+                            //Update the model..
+                            scope.model[scope.options.key][modelData] = scope.objModel[modelData];
+                        }
+                    }
+                }
+
+                $timeout(function(){
+                    scope.objModel = scope.model[scope.options.key];
+                });
+            }, true);
+
+        }
     });
 
 
@@ -339,7 +397,8 @@ angular.module($snaphy.getModuleName())
 
 
                 $scope.loadUrl = function(file) {
-                    var url = "/api/containers/" + file.result.container + "/download/" + file.result.name;
+                    //TODO adding medium for small images load..
+                    var url = "/api/containers/" + file.result.container + "/download/medium_" + file.result.name;
                     return url;
                 };
 
@@ -391,11 +450,12 @@ angular.module($snaphy.getModuleName())
 
                         file.upload.then(function(response) {
                             $timeout(function() {
-                                file.result = response.data.result.files.file[0];
+                                //file.result = response.data.result.files.file[0];
+                                file.result = response.data;
                                 if ($scope.model[$scope.options.key] === undefined) {
                                     $scope.model[$scope.options.key] = [];
                                 }
-
+                                //console.log(response);
                                 //Adding data to the model.
                                 $scope.model[$scope.options.key].push(file.result);
                             });
@@ -573,6 +633,9 @@ angular.module($snaphy.getModuleName())
                     uploadUrl = url.upload;
                 }
 
+                //TODO REMOVE this
+                //uploadUrl = "/api/AmazonImages/" +  $scope.options.templateOptions.containerName +  "/upload";
+
 
                 $scope.checkData = function() {
                     if ($scope.file) {
@@ -605,7 +668,7 @@ angular.module($snaphy.getModuleName())
                 };
 
                 $scope.loadUrl = function(file) {
-                    var url = "/api/containers/" + file.result.container + "/download/" + file.result.name;
+                    var url = "/api/containers/" + file.result.container + "/download/medium_" + file.result.name;
                     return url;
                 };
 
@@ -653,13 +716,18 @@ angular.module($snaphy.getModuleName())
                         file.upload = Upload.upload({
                             url: uploadUrl,
                             data: {
-                                file: file
+                                file: file,
+                                container: $scope.options.templateOptions.containerName
                             }
                         });
 
                         file.upload.then(function(response) {
                             $timeout(function() {
-                                file.result = response.data.result.files.file[0];
+                                //file.result = response.data.result.files.file[0];
+                                //console.log(response.result);
+                                file.result = response.data;
+
+
                                 if ($scope.model[$scope.options.key] === undefined) {
                                     $scope.model[$scope.options.key] = {};
                                 }
@@ -770,6 +838,56 @@ angular.module($snaphy.getModuleName())
             }
         ]
     });
+
+
+    formlyConfig.setType({
+        name: 'minRecipeDisplay',
+        templateUrl: '/formlyTemplate/views/minRecipeDisplay.html',
+        link: function(scope, elem, attrs) {
+            // ID PROPERTY IS NEEDED FOR VALIDATE TO WORK
+            if(scope.options.templateOptions){
+                if(!scope.options.templateOptions.colSize){
+                    scope.options.templateOptions.colSize = 'col-xs-12';
+                }
+            }//if
+
+            var messageObj = $($(elem).find(".showMessage"));
+
+            scope.checkIngredirent = function(){
+                var ingredient = scope.model[scope.options.templateOptions.bindObj];
+                if($.isEmptyObject(ingredient)){
+                    $(messageObj).html("Error: Add ingredient first before adding amount.").show();
+                    scope.model[scope.options.templateOptions.bindObj] = {};
+                    scope.model[scope.options.key] = "";
+                    return false;
+                }else{
+                    $(messageObj).html("").hide();
+                }
+
+            };
+
+
+            scope.checkValue = function(){
+                //setTimeout(function () {
+                // if( parseInt(ingredient.minimumQuantity) > parseInt(scope.model[scope.options.key]) ){
+                //     console.log("display min required quantity error..");
+                //     $timeout(function(){
+                //         scope.model[scope.options.key] = ingredient.minimumQuantity;
+                //         $(messageObj).html("Error: ingredient amount must be greater than minimum required quantity.").show();
+                //     });
+                // }else{
+                //     $(messageObj).html("").hide();
+                // }
+                // //}, 800);
+
+            };
+        }//link function..
+    });
+
+
+
+
+
 
 
 
