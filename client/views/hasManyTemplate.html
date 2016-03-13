@@ -15,14 +15,26 @@
         <div ng-if="!hide" style="margin-top:10px;">
             <div class="row">
                 <div ng-if="showSearch()" class="col-md-9 col-xs-12">
-                    <multi-search
-                            placeholder="{{placeholder}}"
-                            model-name="{{to.model}}"
-                            search-property="{{to.searchProp}}"
-                            value="model[options.key]">
-                    </multi-search>
+                    <div class="form-group">
+                        <div >
+                            <div style="margin-left: 10px;" class="form-material">
+                                <multi-search ng-if="to.id"
+                                        placeholder="{{placeholder}}"
+                                        model-name="{{to.model}}"
+                                        search-property="{{to.searchProp}}"
+                                        value="model[options.key]" name="{{to.id}}" id="{{to.id}}">
+                                </multi-search>
+                                <multi-search ng-if="!to.id"
+                                        placeholder="{{placeholder}}"
+                                        model-name="{{to.model}}"
+                                        search-property="{{to.searchProp}}"
+                                        >
+                                </multi-search>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <!--if init === true then initialize on field in advance-->
+                <!-- if init === true then initialize on field in advance -->
                 <div ng-if="to.create" class="AddNewButton col-md-3 col-xs-12">
                     <button type="button"  style="height:36px;"  class="btn btn-md btn-default" ng-click="addNew()" >{{to.btnText}}</button>
                 </div>
@@ -31,10 +43,11 @@
             <div ng-if="to.create" style="margin-top:10px;" >
                 <div class="repeatsection" ng-repeat="element in model[options.key]" ng-init="fields = copyFields(to.fields)">
                     <strong class="col-xs-12 " style="text-align:right;" ><small>{{$index + 1}}</small></strong>
-                    <formly-form fields="fields"
+                        <formly-form fields="fields"
                                  model="element"
-                                 form="form">
-                    </formly-form>
+                                 form="form"
+                                 >
+                        </formly-form>
                     <div class="form-group">
                         <div class="col-xs-12 text-right" >
                             <button type="button" class="btn btn-sm btn-danger" ng-click="model[options.key].splice($index, 1)">
