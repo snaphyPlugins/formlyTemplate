@@ -991,6 +991,13 @@ angular.module($snaphy.getModuleName())
             };
 
 
+            scope.removeVideo = function(){
+                if(scope.model[scope.options.key] ){
+                    scope.model[scope.options.key] = "";
+                }
+            };
+
+
 
             scope.$watch('model[options.key]', function(){
                 if(!scope.model[scope.options.key]){
