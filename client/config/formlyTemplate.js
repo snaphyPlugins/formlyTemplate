@@ -556,7 +556,7 @@ angular.module($snaphy.getModuleName())
                         if (dbService) {
                             dbService.removeFile({
                                 container: containerName,
-                                file: fileName
+                                file: "original_" + fileName
                             }, function(values) {
                                 console.log("file successfully deleted");
                                 SnaphyTemplate.notify({
@@ -565,6 +565,35 @@ angular.module($snaphy.getModuleName())
                                     icon: 'fa fa-check',
                                     align: 'right'
                                 });
+
+                                //Now also delete the remaining..
+                               
+                                if(fileName){
+                                    //var absFileName = fileName.replace(original, '');
+                                    //var originalFileName =  "original_" + absFileName;
+                                    var mediumFileName =  "medium_" + fileName;
+                                    var smallFileName = "small_" + fileName;
+                                    var thumbFilename = "thumb_" + fileName;
+
+                                    var deleteImage = function(dbService, containerName, fileName){
+                                    dbService.removeFile({
+                                        container: containerName,
+                                        file: fileName
+                                        }, function(){
+                                                //success do nothing..
+                                        }, function(){
+                                                //Error do nothing..
+                                        });
+                                    };
+
+                                    //Now delete all the related images too..
+                                    deleteImage(dbService, containerName, mediumFileName);
+                                    //deleteImage(dbService, containerName, originalFileName);
+                                    deleteImage(dbService, containerName, smallFileName);
+                                    deleteImage(dbService, containerName, thumbFilename);
+
+                                }
+                                 
 
                             }, function(err) {
                                 console.error("error deleting file.");
@@ -839,7 +868,7 @@ angular.module($snaphy.getModuleName())
                         if (dbService) {
                             dbService.removeFile({
                                 container: containerName,
-                                file: fileName
+                                file: "original_" + fileName
                             }, function() {
                                 //console.log("file successfully deleted");
                                 SnaphyTemplate.notify({
@@ -848,6 +877,34 @@ angular.module($snaphy.getModuleName())
                                     icon: 'fa fa-check',
                                     align: 'right'
                                 });
+
+                                //Now also delete the remaining..
+                                if(fileName){
+                                    //var absFileName = fileName.replace(original, '');
+                                    //var originalFileName =  "original_" + absFileName;
+                                    var mediumFileName =  "medium_" + fileName;
+                                    var smallFileName = "small_" + fileName;
+                                    var thumbFilename = "thumb_" + fileName;
+
+                                    var deleteImage = function(dbService, containerName, fileName){
+                                    dbService.removeFile({
+                                        container: containerName,
+                                        file: fileName
+                                        }, function(){
+                                                //success do nothing..
+                                        }, function(){
+                                                //Error do nothing..
+                                        });
+                                    };
+
+                                    //Now delete all the related images too..
+                                    deleteImage(dbService, containerName, mediumFileName);
+                                    //deleteImage(dbService, containerName, originalFileName);
+                                    deleteImage(dbService, containerName, smallFileName);
+                                    deleteImage(dbService, containerName, thumbFilename);
+
+                                }
+                                 
                             }, function() {
                                 //console.error("error deleting file.");
                                 //console.error(err);
